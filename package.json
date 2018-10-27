@@ -1,0 +1,11 @@
+{
+  "name": "tokenui",
+  "version": "0.1.0",
+  "description": "A CL-like UI for interacting with Discord using token auth.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "met4000",
+  "license": "MIT"
+}
