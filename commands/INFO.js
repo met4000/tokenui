@@ -16,6 +16,7 @@ INFO
 					console.log("LEVEL 1");
 					console.log("Current User: ".appendPad(15) + scope.level._[0]);
 					console.log("User Token: ".appendPad(15) + uilib.obfuscateToken(scope.client.token));
+					console.log("Status: ".appendPad(15) + scope.client.user.presence.status.toUpperCase());
 				} if (scope.level.current >= 2) {
 					console.log("\nLEVEL 2");
 
@@ -29,6 +30,7 @@ INFO
 						console.log("Owner: ".appendPad(15) + server.owner.user.username);
 						console.log("Owner Nick: ".appendPad(15) + (server.owner.nickname || ""));
 						console.log("Owner ID: ".appendPad(15) + server.ownerID);
+						console.log("Owner Status: ".appendPad(15) + server.owner.presence.status.toUpperCase());
 					}
 				} if (scope.level.current >= 3) {
 					console.log("\nLEVEL 3");
@@ -37,7 +39,8 @@ INFO
 						var recipient = scope.client.channels.get(scope.level._[2]).recipient;
 						console.log("Recipient: ".appendPad(15) + recipient.username);
 						console.log("Recipient ID: ".appendPad(15) + recipient.id);
-						console.log("Channel ID: ".appendPad(15) + scope.level._[2])
+						console.log("R. Status: ".appendPad(15) + recipient.presence.status.toUpperCase());
+						console.log("Channel ID: ".appendPad(15) + scope.level._[2]);
 					} else {
 						var channel = scope.client.channels.get(scope.level._[2]);
 						console.log("Channel Name: ".appendPad(15) + channel.name);
