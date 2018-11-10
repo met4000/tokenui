@@ -39,13 +39,14 @@ String.prototype.appendPad = function (n) {
 };
 
 
-function obfuscateToken (t) {
-	return t.substr(0, 6) + "** ... **" + t.substr(t.length - 6, 6);
-}
+function obfuscateToken (t) { return t.substr(0, 6) + "** ... **" + t.substr(t.length - 6, 6); }
+function preZero (n) { return (parseInt(n) < 10 ? "0" : "") + n; }
 
 var paused = false;
 function setPaused (b) {
 	if (!(paused = b)) {
+		console.log();
+		
 		if (level.current >= 1) {
 			process.stdout.write("[" + level._[0] + "]");
 			
@@ -57,6 +58,7 @@ function setPaused (b) {
 				}
 			}
 		}
+		
 		process.stdout.write("> ");
 	}
 }
@@ -270,6 +272,7 @@ Note: TOKEN should be escaped with quotes to ensure correct parsing.
 				
 				console.log("Logging in to account with '" + obfuscateToken(key) + "'. Please wait...");
 				setPaused(true);
+				
 				deasync(client.login(key).catch(() => {
 					console.log("Token rejected, or unable to connect to the Discord auth server.\nCheck that you have input it correctly and that you are connected\nto the internet before trying again.\n\n");
 					
@@ -279,10 +282,12 @@ Note: TOKEN should be escaped with quotes to ensure correct parsing.
 					setPaused(false);
 				}));
 			} else if (r.hasFlags()) {
-				console.log("Expected no flags. Found: " + Object.keys(r).slice(3) + "\n");
+				console.log("Expected no flags. Found: " + Object.keys(r).slice(3));
 			} else {
-				console.log("Invalid Syntax.\n");
+				console.log("Invalid Syntax.");
 			}
+			
+			console.log();
 		}
 	}, USERLIST: {
 		level: 0,
@@ -478,6 +483,62 @@ CHANNELLIST [-H]
 			
 			console.log();
 		}
+	}, USERCHANNEL: {
+		level: 2,
+		alias: ["UC", "GETDM", "GDM"],
+		desc: "Displays the ID of the DM for the specified user. WIP - DO NOT USE",
+		exec: function (r) {
+			if (r._[0] && !r.hasFlags() && !r._[1]) {
+				if (client.user.bot) { // Bot account; can use .fetchUser()
+					console.log(client.fetchUser(r._[0]));
+				} else { // User account; cannot use .fetchUser()
+					console.log(client);
+				}
+			} else if (r.hasFlags()) {
+				console.log("Expected no flags. Found: " + Object.keys(r).slice(3));
+			} else {
+				console.log("Invalid Syntax.");
+			}
+			
+			console.log();
+		}
+	}, FETCH: {
+		level: 3,
+		alias: ["F"],
+		desc: "Fetches messages from the current channel.",
+		help: `
+FETCH [NUMBER]
+
+    NUMBER    The number of messages to fetch. Defaults to 20.
+`,
+		exec: function (r) {
+			if (!r.hasFlags() && !r._[1]) {
+				var channel = client.channels.get(level._[2]);
+				if (channel.fetchMessages) {
+					channel.fetchMessages({ limit: r._[0] || 20 }).then((messages) => {
+						var messageArr = messages.array().reverse();
+						
+						for (var i in messageArr) {
+							var m = messageArr[i], t = m.createdAt;
+							t = preZero(t.getHours()) + ":" + preZero(t.getMinutes()) + ":" + preZero(t.getSeconds());
+							console.log("[" + t + "] " + m.author.username + ": " + m.content);
+						}
+						
+						setPaused(false);
+					});
+					
+					setPaused(true);
+				} else {
+					console.log("Unable to send message: channel refused text message.");
+				}
+			} else if (r.hasFlags()) {
+				console.log("Expected no flags. Found: " + Object.keys(r).slice(3));
+			} else {
+				console.log("Invalid Syntax.");
+			}
+			
+			console.log();
+		}
 	}, MESSAGE: {
 		level: 3,
 		alias: ["M", "MSG"],
@@ -492,7 +553,7 @@ MESSAGE CONTENT [-S]
 Fails if the current channel is not a text channel.
 `,
 		exec: function (r) {
-			if (r._[0] && (!r.hasFlags() || r.hasFlag("S")) && !r._[1]) { // @TODO - check if text channel, and fail if not
+			if (r._[0] && (!r.hasFlags() || r.hasFlag("S")) && !r._[1]) {
 				var channel = client.channels.get(level._[2]);
 				if (channel.send) {
 					channel.send(r._[0]);
@@ -588,8 +649,6 @@ process.stdin.on("readable", () => {
 				console.log("Unknown level " + level.current + " command: '" + r.command + "'.\nType HELP for a list of commands.\n");
 			}
 		}
-		
-		console.log();
 		
 		if (!paused) setPaused(false);
 	}
