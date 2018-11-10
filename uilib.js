@@ -34,6 +34,6 @@ module.exports.obfuscateToken = function (t) {
 	return t.substr(0, 6) + "** ... **" + t.substr(t.length - 6, 6);
 };
 
-module.exports.preZero = new function (n) {
+module.exports.preZero = function (n) {
 	return (parseInt(n) < 10 ? "0" : "") + n;
 };
