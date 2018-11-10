@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 
 const commandParser = require("string-to-argv.js");
 const Discord = require("discord.js");
